@@ -25,6 +25,12 @@ import MarketMyTrades from 'components/MarketMyTrades'
 import './marketDetail.less'
 import { weiToEth } from '../../utils/helpers'
 
+import './App.css';
+
+import LineChart from './LineChart';
+import ToolTip from './ToolTip';
+import InfoBox from './InfoBox';
+
 const ONE_WEEK_IN_HOURS = 168
 const EXPAND_BUY_SHARES = 'buy-shares'
 // const EXPAND_SHORT_SELL = 'short-sell'
@@ -104,8 +110,48 @@ class MarketDetail extends Component {
 
     this.state = {
       marketFetchError: undefined,
+      fetchingData: true,
+      data: null,
+      hoverLoc: null,
+      activePoint: null,
     }
   }
+
+  handleChartHover(hoverLoc, activePoint){
+    this.setState({
+      hoverLoc: hoverLoc,
+      activePoint: activePoint
+    })
+  }
+  componentDidMount(){
+    const getData = () => {
+      const url = 'https://api.coindesk.com/v1/bpi/historical/close.json';
+
+      fetch(url).then( r => r.json())
+        .then((bitcoinData) => {
+          const sortedData = [];
+          let count = 0;
+          for (let date in bitcoinData.bpi){
+            sortedData.push({
+              d: moment(date).format('MMM DD'),
+              p: bitcoinData.bpi[date].toLocaleString('us-EN',{ style: 'currency', currency: 'USD' }),
+              x: count, //previous days
+              y: bitcoinData.bpi[date] // numerical price
+            });
+            count++;
+          }
+          this.setState({
+            data: sortedData,
+            fetchingData: false
+          })
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+    getData();
+  }
+
   componentWillMount() {
     if (!this.props.market || !this.props.market.address) {
       this.props.fetchMarket()
@@ -318,6 +364,36 @@ class MarketDetail extends Component {
           <div className="row">
             <div className="col-xs-10 col-xs-offset-1 col-sm-7 col-sm-offset-0">
               <h1 className="marketTitle__heading">{ market.eventDescription.title }</h1>
+              jdhskjhd
+
+             <div className='container'>
+        <div className='row'>
+          <h1>30 Day Bitcoin Price Chart</h1>
+        </div>
+        <div className='row'>
+          { !this.state.fetchingData ?
+          <InfoBox data={this.state.data} />
+          : null }
+        </div>
+        <div className='row'>
+          <div className='popup'>
+            {this.state.hoverLoc ? <ToolTip hoverLoc={this.state.hoverLoc} activePoint={this.state.activePoint}/> : null}
+          </div>
+        </div>
+        <div className='row'>
+          <div className='chart'>
+            { !this.state.fetchingData ?
+              <LineChart data={this.state.data} onChartHover={ (a,b) => this.handleChartHover(a,b) }/>
+              : null }
+          </div>
+        </div>
+        <div className='row'>
+          <div id="coindesk"> Powered by <a href="http://www.coindesk.com/price/">CoinDesk</a></div>
+        </div>
+      </div>
+
+
+
             </div>
           </div>
         </div>
