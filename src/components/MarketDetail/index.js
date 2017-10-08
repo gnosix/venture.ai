@@ -115,6 +115,8 @@ class MarketDetail extends Component {
       hoverLoc: null,
       activePoint: null,
     }
+
+    this.coin = null;
   }
 
   handleChartHover(hoverLoc, activePoint){
@@ -125,8 +127,17 @@ class MarketDetail extends Component {
   }
   componentDidMount(){
     const getData = () => {
-      const url = 'https://api.coindesk.com/v1/bpi/historical/close.json';
-
+      
+      var url;
+      if (this.coin == "BitCoin") {
+        url = "https://api.coindesk.com/v1/bpi/historical/close.json";
+      } else if (this.coin == "Etherium") {
+        url = 'https://gist.github.com/hackerkid/b42a6c04749015aa5bb467f95d1409ff';
+      } else if (this.coin == "Litecoin") {
+        url = "litecoin link"
+      } 
+      console.log(this.coin);
+      
       fetch(url).then( r => r.json())
         .then((bitcoinData) => {
           const sortedData = [];
@@ -358,45 +369,47 @@ class MarketDetail extends Component {
       return this.renderLoading()
     }
 
+    if (market.eventDescription.title.indexOf("Bitcoin")) {
+      this.coin = "BitCoin"
+    } else if (market.eventDescription.title.indexOf("Ethereum")) {
+      this.coin = "Etherium"
+    } else if (market.eventDescription.title.indexOf("Litecoin")) {
+      this.coin = "Litecoin"
+    } 
+
     return (
       <div className="marketDetailPage">
         <div className="container">
           <div className="row">
             <div className="col-xs-10 col-xs-offset-1 col-sm-7 col-sm-offset-0">
               <h1 className="marketTitle__heading">{ market.eventDescription.title }</h1>
-              jdhskjhd
-
-             <div className='container'>
-        <div className='row'>
-          <h1>30 Day Bitcoin Price Chart</h1>
-        </div>
-        <div className='row'>
-          { !this.state.fetchingData ?
-          <InfoBox data={this.state.data} />
-          : null }
-        </div>
-        <div className='row'>
-          <div className='popup'>
-            {this.state.hoverLoc ? <ToolTip hoverLoc={this.state.hoverLoc} activePoint={this.state.activePoint}/> : null}
-          </div>
-        </div>
-        <div className='row'>
-          <div className='chart'>
-            { !this.state.fetchingData ?
-              <LineChart data={this.state.data} onChartHover={ (a,b) => this.handleChartHover(a,b) }/>
-              : null }
-          </div>
-        </div>
-        <div className='row'>
-          <div id="coindesk"> Powered by <a href="http://www.coindesk.com/price/">CoinDesk</a></div>
-        </div>
-      </div>
-
-
-
+              <div className='row'>
+                { !this.state.fetchingData ?
+                <InfoBox data={this.state.data} />
+                : null }
+              </div>
+              <div className = "row">
+                <h2>
+                    {this.coin} prize
+                </h2>
+              </div>
+             
+              <div className='row'>
+                <div className='popup'>
+                  {this.state.hoverLoc ? <ToolTip hoverLoc={this.state.hoverLoc} activePoint={this.state.activePoint}/> : null}
+                </div>
+              </div>
+              <div className='row'>
+                <div className='chart'>
+                  { !this.state.fetchingData ?
+                    <LineChart data={this.state.data} onChartHover={ (a,b) => this.handleChartHover(a,b) }/>
+                    : null }
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
         <div className="container">
           <div className="row">
             { this.renderDetails(market) }
