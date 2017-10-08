@@ -1,4 +1,5 @@
-gnosis-management
+
+Venture.AI built on top of Gnosis
 ------
 
 [![Join the chat at https://gitter.im/gnosis/gnosis-management](https://badges.gitter.im/gnosis/gnosis-management.svg)](https://gitter.im/gnosis/gnosis-management?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
